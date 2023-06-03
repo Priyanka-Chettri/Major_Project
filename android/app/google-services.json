@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "389576792730",
+    "firebase_url": "https://waterlevelrts-default-rtdb.firebaseio.com",
+    "project_id": "waterlevelrts",
+    "storage_bucket": "waterlevelrts.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:389576792730:android:c99864faff096215aa9d23",
+        "android_client_info": {
+          "package_name": "com.example.maj_project"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "389576792730-gpld6pols3i9hmu7s4tagvc2695k1m8g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC9-YvfGEnOua8L1nqBYxg_vqdwdw0o_dw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "389576792730-gpld6pols3i9hmu7s4tagvc2695k1m8g.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
