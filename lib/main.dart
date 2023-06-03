@@ -18,7 +18,6 @@ class Main extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title:'Flood Alerting App',
       home: SplashScreen(),
-
     );
   }
 }

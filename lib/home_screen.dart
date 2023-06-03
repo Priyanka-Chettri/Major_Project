@@ -5,6 +5,8 @@ import 'package:maj_project/nav_bar/maps_screen.dart';
 import 'package:maj_project/nav_bar/profile_screen.dart';
 import 'package:maj_project/nav_bar/weather_screen.dart';
 
+import 'nav_bar/flood_alert_screen2.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
@@ -18,7 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> _childrens =[
     WeatherScreen(),
     MapsScreen(),
-    FloodAlertScreen(),
+    FloodAlertScreen2(title: 'Flood Alert',),
     ProfileScreen(),
   ];
 
