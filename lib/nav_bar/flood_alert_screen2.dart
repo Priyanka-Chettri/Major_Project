@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -66,6 +68,46 @@ class FloodAlertScreen2State extends State<FloodAlertScreen2> {
         ),
       );
     });
+  }
+
+  Future getData(
+    {
+      Function(dynamic data)? onSuccess,
+      Function(dynamic error)? onError,
+      Map<String, String> headers = const {},
+      String clientId = "",
+    }
+  ) async {
+    Map<String, dynamic> reqBody = {
+      'Temperature': 13.06,
+      'Humidity': 96.44,
+      'Windspeed': 1.49,
+      'Pressure': 96.39
+    };
+    // url is 
+    try{
+      headers = {
+        'Content-Type': 'application/json',
+      };
+      var response = await http.post(
+        Uri.parse('http://192.168.224.19:5000/predict-rainfall-lstms/'), 
+        headers: headers,
+        body: jsonEncode(reqBody)
+      );
+      if (response.statusCode == 200) {
+        print("Response is ${response.body}");
+      } else {
+        print("Response is ${response.body}");
+      }
+    } catch (error) {
+      print("Error is $error");
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getData();
   }
 
   @override
