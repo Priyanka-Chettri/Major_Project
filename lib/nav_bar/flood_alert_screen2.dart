@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -53,9 +54,8 @@ class FloodAlertScreen2State extends State<FloodAlertScreen2> {
       isUploading = true;
       isUploaded = false;
     });
-    // await FirebaseStorage.instance.ref('uploads/file-to-upload.png').putFile(pickedImage);
-   Future.delayed(const Duration(seconds: 2), () {
-       setState(() {
+    await FirebaseStorage.instance.ref('drainage_images/${DateTime.now().millisecondsSinceEpoch}.png').putFile(pickedImage).then((p0){
+      setState(() {
         isUploading = false;
         isUploaded = true;
         isFilePicked = false;
