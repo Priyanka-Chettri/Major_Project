@@ -44,6 +44,7 @@ dependencies:
   tflite_flutter: ^0.10.0
   image_picker: ^0.8.7+5
   permission_handler: ^10.2.0
+  firebase_auth: ^4.6.2
 
 dev_dependencies:
   flutter_test:

@@ -1,7 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import 'home_screen.dart';
+
+PhoneAuthCredential globalCredential = PhoneAuthProvider.credential(
+    verificationId: '', smsCode: '');
 
 class LoginScreen extends StatefulWidget {
   LoginScreen({Key? key}) : super(key: key);
@@ -121,8 +125,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   height: 50,
                   width: MediaQuery.of(context).size.width/2 - 10,
                   child: ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async{
                       if(isValidPhone){
+                        await FirebaseAuthentication().sendOTP(phoneController.text);
                         setState(() {
                           otpSent = true;
                           otpFocusNode.requestFocus();
@@ -202,6 +207,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: ElevatedButton(
                     onPressed: () {
                       print("${phoneController.text}");
+                      FirebaseAuthentication().verifyOtp(globalCredential.verificationId ?? "",  otpController.text, context);
                       // Navigator.pushAndRemoveUntil(
                       //     context,
                       //     MaterialPageRoute(builder: (context) => HomeScreen()),
@@ -235,6 +241,65 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
       ),
+    );  
+  }
+}
+
+class FirebaseAuthentication {
+  String phoneNumber = "";
+  
+  sendOTP(String phoneNumber) async {
+    this.phoneNumber = phoneNumber;
+    FirebaseAuth auth = FirebaseAuth.instance;
+    await auth.verifyPhoneNumber(
+      phoneNumber: "+91$phoneNumber",
+      verificationCompleted: (PhoneAuthCredential credential) async {
+        printMessage("Auto Verification Completed");
+        await auth.signInWithCredential(credential);
+      },
+      verificationFailed: (FirebaseAuthException e) {
+        printMessage("Auto Verification Failed: ${e.message}");
+      },
+      codeSent: (String verificationId, int? resendToken) async {
+        printMessage("OTP Sent");
+        String smsCode = '111111';
+        PhoneAuthCredential credential = PhoneAuthProvider.credential(verificationId: verificationId, smsCode: smsCode);
+        globalCredential = credential;
+        await auth.signInWithCredential(credential);
+      },
+      codeAutoRetrievalTimeout: (String verificationId) {
+        printMessage("Auto Retrieval Timeout");
+      },
     );
+    printMessage("OTP Sent to +91 $phoneNumber");
+  }
+  
+  authenticate(ConfirmationResult confirmationResult, String otp) async {
+    UserCredential userCredential = await confirmationResult.confirm(otp);
+    userCredential.additionalUserInfo!.isNewUser
+        ? printMessage("Authentication Successful")
+        : printMessage("User already exists");
+  }
+
+  Future<void> verifyOtp(String verID, String otpPin, BuildContext context) async{
+    await FirebaseAuth.instance.signInWithCredential(
+      PhoneAuthProvider.credential(
+          verificationId: verID,
+          smsCode: otpPin
+      )
+    ).whenComplete(()async{
+      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder:(context)=>const HomeScreen()), (route)=>true);
+
+      /*showSnackBar("Verification completed please enter other details to proceed");
+      setState(() {
+        isverifyclicked=true;
+      });*/
+
+    });
+
+  }
+  
+  printMessage(String msg) {
+    debugPrint(msg);
   }
 }
