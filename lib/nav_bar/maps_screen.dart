@@ -12,8 +12,8 @@ class MapsScreen extends StatefulWidget {
 class _MapsScreenState extends State<MapsScreen> {
 
   static const CameraPosition _kGooglePlex=CameraPosition(
-      target: LatLng(26.369275,91.679765),
-      zoom:14.4746,
+      target: LatLng(26.1295, 91.6204752),
+      zoom: 14,
   );
 
   @override
@@ -26,10 +26,20 @@ class _MapsScreenState extends State<MapsScreen> {
         ),
       ),
       body:
-      const GoogleMap(
+      GoogleMap(
         myLocationButtonEnabled: false,
         myLocationEnabled: false,
         initialCameraPosition: _kGooglePlex,
+        circles: {
+          Circle(
+            circleId: CircleId('circle'),
+            center: LatLng(26.1295, 91.6204752),
+            radius: 140,
+            fillColor: Colors.redAccent.shade100.withOpacity(0.5),
+            strokeWidth: 5,
+            strokeColor: Colors.redAccent.shade100,
+          ),
+        }
       )
     );
   }
