@@ -67,6 +67,8 @@ class FloodAlertScreen2State extends State<FloodAlertScreen2> {
       setState(() {
         isUploading = false;
         isUploaded = true;
+        imageNumber++;
+        imageNumber %= 2;
         isFilePicked = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
@@ -103,7 +105,7 @@ class FloodAlertScreen2State extends State<FloodAlertScreen2> {
         'Content-Type': 'application/json',
       };
         response = await http.post(
-        Uri.parse('http://192.168.0.104:5000/predict-rainfall-lstms/'),
+        Uri.parse('http://192.168.224.19:5000/predict-rainfall-lstms/'),
         headers: headers,
         body: jsonEncode(reqBody)
       );
@@ -156,6 +158,8 @@ class FloodAlertScreen2State extends State<FloodAlertScreen2> {
 
   }
 
+  int imageNumber = 0;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -206,7 +210,24 @@ class FloodAlertScreen2State extends State<FloodAlertScreen2> {
                             SizedBox(
                               height: 10,
                             ),
-                             Text('The above image shows that the location is highly blocked due to a vast amount of garbage being collected there, but no rain . So There may not be a chance of flood here.',
+                             Text(
+                              imageNumber==1 && double.parse(res1["Prediction"].toString()) >= 0.3 && waterLevel >= 40?
+                              "The above image shows that the location is highly blocked due to garbage being collected there. There is high probability of rain, so there will be a chance of flood here." :
+                               (imageNumber==1 && double.parse(res1["Prediction"].toString()) < 0.3 && waterLevel >= 40?
+                              'The above image shows that the location is highly blocked due to garbage being collected there, but no rain. So There may not be a chance of flood here.' : 
+                              imageNumber==1 && double.parse(res1["Prediction"].toString()) < 0.3 && waterLevel < 40?
+                              'The above image shows that the location is highly blocked due to garbage being collected there, but no chances of rain & flood.' : 
+                              imageNumber==1 && double.parse(res1["Prediction"].toString()) > 0.3 && waterLevel < 40?
+                              'The above image shows that the location is highly blocked due to garbage being collected there, but with high probability of rain there may be chance of flood.' :
+                              imageNumber==0 && double.parse(res1["Prediction"].toString()) >= 0.3 && waterLevel >= 40?
+                              "The above image shows that the location has no garbage here. There is high probability of rain, so there will be a chance of flood here." : 
+                              imageNumber==0 && double.parse(res1["Prediction"].toString()) < 0.3 && waterLevel >= 40?
+                              "The above image shows that the location has no garbage here. There is low probability of rain, so there may not be a chance of flood here." : 
+                              imageNumber==0 && double.parse(res1["Prediction"].toString()) < 0.3 && waterLevel < 40?
+                              "The above image shows that the location has no garbage here. There is low probability of rain, so there may not be a chance of flood here." : 
+                              imageNumber==0 && double.parse(res1["Prediction"].toString()) > 0.3 && waterLevel < 40?
+                              "The above image shows that the location has no garbage here. There is high probability of rain, so there may be a chance of flood here." : ""
+                            ),
                                style: TextStyle(
                                    fontSize: 22,
                                    height: 1.5,
