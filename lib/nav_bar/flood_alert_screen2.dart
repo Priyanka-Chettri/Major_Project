@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -72,6 +73,11 @@ class FloodAlertScreen2State extends State<FloodAlertScreen2> {
 
   Future getData(
     {
+      required double humidity,
+      required double temperature,
+      required double windspeed,
+      required double pressure,
+      required double waterLevel,
       Function(dynamic data)? onSuccess,
       Function(dynamic error)? onError,
       Map<String, String> headers = const {},
@@ -79,11 +85,12 @@ class FloodAlertScreen2State extends State<FloodAlertScreen2> {
     }
   ) async {
     Map<String, dynamic> reqBody = {
-      'Temperature': 13.06,
-      'Humidity': 96.44,
-      'Windspeed': 1.49,
-      'Pressure': 96.39
+      'Temperature': temperature,
+      'Humidity': humidity,
+      'Windspeed': windspeed,
+      'Pressure': pressure
     };
+    print("Request body is $reqBody");
     // url is 
     try{
       headers = {
@@ -107,7 +114,23 @@ class FloodAlertScreen2State extends State<FloodAlertScreen2> {
   @override
   void initState() {
     super.initState();
-    getData();
+    getDataFromDB();
+  }
+
+  getDataFromDB()async{
+    final firebaserealtimeDB = FirebaseDatabase.instance.ref();
+    var humidity=0.0, temperature=0.0, windspeed=0.0, pressure=0.0, waterLevel=0.0;
+    Map<String, dynamic> data = {};
+    await firebaserealtimeDB.root.once().then((DatabaseEvent event) {
+      var json = jsonEncode(event.snapshot.value);
+      humidity = jsonDecode(json)['Humidity']?.toDouble();
+      temperature = jsonDecode(json)['Temperature']?.toDouble();
+      windspeed = jsonDecode(json)['Windspeed']?.toDouble();
+      pressure = jsonDecode(json)['Pressure']?.toDouble();
+      waterLevel = jsonDecode(json)['water_level']?.toDouble();
+    }).then((value) {
+      getData(humidity: humidity, temperature: temperature, windspeed: windspeed, pressure: pressure, waterLevel: waterLevel);
+    });
   }
 
   @override
