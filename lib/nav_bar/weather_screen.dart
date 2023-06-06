@@ -47,11 +47,11 @@ class _WeatherScreenState extends State<WeatherScreen> {
   }
 
   final List<String> days = [
-    'Thursday, 6 April',
-    'Friday, 7 April',
-    'Saturday, 8 April',
-    'Sunday, 9 April',
-    'Monday, 10 April'
+    'Wednesday, 7 June',
+    'Thursday, 8 June',
+    'Friday, 9 June',
+    'Saturday, 10 June',
+    'Sunday, 11 June'
   ];
 
   final List<String> conditions = [
@@ -61,7 +61,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
     'Thunderstorms',
     'Cloudy'
   ];
-  final List<String> temperatures = ['25°C', '27°C', '21°C', '20°C', '22°C'];
+  final List<String> temperatures = ['39°C', '39°C', '39°C', '38°C', '37°C'];
 
   @override
   void initState() {
@@ -125,7 +125,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
               children: [
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
+                  children:  [
                     Text(
                       'Temperature',
                       style: TextStyle(
@@ -136,8 +136,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
                     ),
                     SizedBox(height: 8),
                     Text(
-                      '25°C',
-                     // "${_weather.main.temp.toInt()} \u2103",
+                      // '25°C',
+                     "${_weather.main?.temp?.toInt() ?? "33"}\u2103",
                       style: TextStyle(
                         fontSize: 18,
                         color: Colors.white,
