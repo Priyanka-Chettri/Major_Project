@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -66,6 +67,8 @@ class FloodAlertScreen2State extends State<FloodAlertScreen2> {
       setState(() {
         isUploading = false;
         isUploaded = true;
+        imageNumber++;
+        imageNumber %= 2;
         isFilePicked = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
@@ -78,6 +81,11 @@ class FloodAlertScreen2State extends State<FloodAlertScreen2> {
 
   Future getData(
     {
+      required double humidity,
+      required double temperature,
+      required double windspeed,
+      required double pressure,
+      required double waterLevel,
       Function(dynamic data)? onSuccess,
       Function(dynamic error)? onError,
       Map<String, String> headers = const {},
@@ -85,11 +93,12 @@ class FloodAlertScreen2State extends State<FloodAlertScreen2> {
     }
   ) async {
     Map<String, dynamic> reqBody = {
-      'Temperature': 13.06,
-      'Humidity': 96.44,
-      'Windspeed': 1.49,
-      'Pressure': 96.39
+      'Temperature': temperature,
+      'Humidity': humidity,
+      'Windspeed': windspeed,
+      'Pressure': pressure
     };
+    print("Request body is $reqBody");
     // url is 
     try{
       headers = {
@@ -112,6 +121,22 @@ class FloodAlertScreen2State extends State<FloodAlertScreen2> {
     return 'hey';
   }
 
+  var humidity=0.0, temperature=0.0, windspeed=0.0, pressure=0.0, waterLevel=0.0;
+  Future getDataFromDB()async{
+    final firebaserealtimeDB = FirebaseDatabase.instance.ref();
+    Map<String, dynamic> data = {};
+    await firebaserealtimeDB.root.once().then((DatabaseEvent event) {
+      var json = jsonEncode(event.snapshot.value);
+      humidity = jsonDecode(json)['Humidity']?.toDouble();
+      temperature = jsonDecode(json)['Temperature']?.toDouble();
+      windspeed = jsonDecode(json)['Windspeed']?.toDouble();
+      pressure = jsonDecode(json)['Pressure']?.toDouble();
+      waterLevel = jsonDecode(json)['water_level']?.toDouble();
+    }).then((value) {
+      return getData(humidity: humidity, temperature: temperature, windspeed: windspeed, pressure: pressure, waterLevel: waterLevel);
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -120,10 +145,20 @@ class FloodAlertScreen2State extends State<FloodAlertScreen2> {
   var res1;
   helper() async
   {
-    res= await getData();
-    res1=json.decode(res);
+    await getDataFromDB().then((value) async{
+      res = await getData(humidity: humidity, temperature: temperature, windspeed: windspeed, pressure: pressure, waterLevel: waterLevel);
+      print(res);
+      res1=json.decode(res);
+      print(res1);
+    }).then((value) {
+      setState(() {
+        
+      });
+    });
 
   }
+
+  int imageNumber = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -175,7 +210,24 @@ class FloodAlertScreen2State extends State<FloodAlertScreen2> {
                             SizedBox(
                               height: 10,
                             ),
-                             Text('The above image shows that the location is highly blocked due to a vast amount of garbage being collected there, but no rain . So There may not be a chance of flood here.',
+                             Text(
+                              imageNumber==1 && double.parse(res1["Prediction"].toString()) >= 0.3 && waterLevel >= 40?
+                              "The above image shows that the location is highly blocked due to garbage being collected there. There is high probability of rain, so there will be a chance of flood here." :
+                               (imageNumber==1 && double.parse(res1["Prediction"].toString()) < 0.3 && waterLevel >= 40?
+                              'The above image shows that the location is highly blocked due to garbage being collected there, but no rain. So There may not be a chance of flood here.' : 
+                              imageNumber==1 && double.parse(res1["Prediction"].toString()) < 0.3 && waterLevel < 40?
+                              'The above image shows that the location is highly blocked due to garbage being collected there, but no chances of rain & flood.' : 
+                              imageNumber==1 && double.parse(res1["Prediction"].toString()) > 0.3 && waterLevel < 40?
+                              'The above image shows that the location is highly blocked due to garbage being collected there, but with high probability of rain there may be chance of flood.' :
+                              imageNumber==0 && double.parse(res1["Prediction"].toString()) >= 0.3 && waterLevel >= 40?
+                              "The above image shows that the location has no garbage here. There is high probability of rain, so there will be a chance of flood here." : 
+                              imageNumber==0 && double.parse(res1["Prediction"].toString()) < 0.3 && waterLevel >= 40?
+                              "The above image shows that the location has no garbage here. There is low probability of rain, so there may not be a chance of flood here." : 
+                              imageNumber==0 && double.parse(res1["Prediction"].toString()) < 0.3 && waterLevel < 40?
+                              "The above image shows that the location has no garbage here. There is low probability of rain, so there may not be a chance of flood here." : 
+                              imageNumber==0 && double.parse(res1["Prediction"].toString()) > 0.3 && waterLevel < 40?
+                              "The above image shows that the location has no garbage here. There is high probability of rain, so there may be a chance of flood here." : ""
+                            ),
                                style: TextStyle(
                                    fontSize: 22,
                                    height: 1.5,
