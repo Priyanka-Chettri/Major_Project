@@ -105,7 +105,7 @@ class FloodAlertScreen2State extends State<FloodAlertScreen2> {
         'Content-Type': 'application/json',
       };
         response = await http.post(
-        Uri.parse('http://192.168.224.19:5000/predict-rainfall-lstms/'),
+        Uri.parse('http://192.168.0.104:5000/predict-rainfall-lstms/'),
         headers: headers,
         body: jsonEncode(reqBody)
       );
