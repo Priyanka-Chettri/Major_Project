@@ -22,6 +22,10 @@ class FloodAlertScreen2State extends State<FloodAlertScreen2> {
   bool isUploading = false;
   bool isUploaded = false;
   bool isFilePicked = false;
+  bool isimagegarbage=true;
+  var res;
+  var response;
+
 
   _loadPicker() async {
     await Permission.storage.request();
@@ -29,8 +33,10 @@ class FloodAlertScreen2State extends State<FloodAlertScreen2> {
     if (permissionStatus.isGranted) {
       XFile? picked =
           await ImagePicker().pickImage(source: ImageSource.gallery);
+      print("picked:${picked}");
       if (picked != null) {
         pickedImage = File(picked.path);
+        print("picked image:${pickedImage}");
         setState(() {
           isFilePicked = true;
         });
@@ -89,25 +95,34 @@ class FloodAlertScreen2State extends State<FloodAlertScreen2> {
       headers = {
         'Content-Type': 'application/json',
       };
-      var response = await http.post(
-        Uri.parse('http://192.168.224.19:5000/predict-rainfall-lstms/'), 
+        response = await http.post(
+        Uri.parse('http://192.168.0.104:5000/predict-rainfall-lstms/'),
         headers: headers,
         body: jsonEncode(reqBody)
       );
       if (response.statusCode == 200) {
         print("Response is ${response.body}");
+        return (response.body);
       } else {
         print("Response is ${response.body}");
       }
     } catch (error) {
       print("Error is $error");
     }
+    return 'hey';
   }
 
   @override
   void initState() {
     super.initState();
-    getData();
+    helper();
+  }
+  var res1;
+  helper() async
+  {
+    res= await getData();
+    res1=json.decode(res);
+
   }
 
   @override
@@ -147,7 +162,7 @@ class FloodAlertScreen2State extends State<FloodAlertScreen2> {
                               height: 20,
                             ),
                             Text(
-                              'The precipitation is 0.5 mm',
+                              'The precipitation is ${res1["Prediction"].toString()}  mm',
                               style: TextStyle(
                                 fontSize: 22,
                                 height: 1.5,
@@ -160,17 +175,15 @@ class FloodAlertScreen2State extends State<FloodAlertScreen2> {
                             SizedBox(
                               height: 10,
                             ),
-                            Text(
-                              'The above image shows that the location is highly blocked due to a vast amount of garbage being collected there. There may be a chance of flood here.',
-                              style: TextStyle(
-                                fontSize: 22,
-                                height: 1.5,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 0.1,
-                                color: Colors.red
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
+                             Text('The above image shows that the location is highly blocked due to a vast amount of garbage being collected there, but no rain . So There may not be a chance of flood here.',
+                               style: TextStyle(
+                                   fontSize: 22,
+                                   height: 1.5,
+                                   fontWeight: FontWeight.bold,
+                                   letterSpacing: 0.1,
+                                   color: Colors.red
+                               ),
+                               textAlign: TextAlign.center,),
                             SizedBox(
                               height: 20,
                             ),
