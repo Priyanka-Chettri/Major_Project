@@ -119,9 +119,9 @@ class FloodAlertScreen2State extends State<FloodAlertScreen2> {
     return 'hey';
   }
 
-  getDataFromDB()async{
+  var humidity=0.0, temperature=0.0, windspeed=0.0, pressure=0.0, waterLevel=0.0;
+  Future getDataFromDB()async{
     final firebaserealtimeDB = FirebaseDatabase.instance.ref();
-    var humidity=0.0, temperature=0.0, windspeed=0.0, pressure=0.0, waterLevel=0.0;
     Map<String, dynamic> data = {};
     await firebaserealtimeDB.root.once().then((DatabaseEvent event) {
       var json = jsonEncode(event.snapshot.value);
@@ -143,8 +143,16 @@ class FloodAlertScreen2State extends State<FloodAlertScreen2> {
   var res1;
   helper() async
   {
-    res= await getDataFromDB();
-    res1=json.decode(res);
+    await getDataFromDB().then((value) async{
+      res = await getData(humidity: humidity, temperature: temperature, windspeed: windspeed, pressure: pressure, waterLevel: waterLevel);
+      print(res);
+      res1=json.decode(res);
+      print(res1);
+    }).then((value) {
+      setState(() {
+        
+      });
+    });
 
   }
 
